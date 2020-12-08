@@ -1,6 +1,7 @@
 const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
 const Board = require('./board');
+const Card = require('./card');
 
 const gameSchema = new Schema(
     {
@@ -13,10 +14,8 @@ const gameSchema = new Schema(
             type: String,
             required: true,
         },
-        boards: [{
-            type: Board.schema,
-            required: false,
-        }]
+        cards: [Card.schema],
+        boards: [Board.schema]
     },
     {
         timestamps: true,
