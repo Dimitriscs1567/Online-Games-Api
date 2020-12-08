@@ -1,5 +1,6 @@
 const express = require('express');
 const gameRoutes = require('./routes/game');
+const authRoutes = require('./routes/auth');
 const bodyParser = require('body-parser');
 const corsPolicy = require('./config/corsPolicy');
 const mongoose = require('mongoose');
@@ -14,6 +15,7 @@ app.use(corsPolicy.setCorsHeaders);
 app.use('/assets', express.static(path.join(__dirname, 'assets')));
 
 //routes
+app.use('/auth', authRoutes);
 app.use('/game', gameRoutes);
 app.use(myError.handleErrors);
 

@@ -1,5 +1,6 @@
 const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
+const Board = require('./board');
 
 const gameSchema = new Schema(
     {
@@ -11,7 +12,11 @@ const gameSchema = new Schema(
         image: {
             type: String,
             required: true,
-        }
+        },
+        boards: [{
+            type: Board.schema,
+            required: false,
+        }]
     },
     {
         timestamps: true,
