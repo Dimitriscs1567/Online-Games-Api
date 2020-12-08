@@ -1,14 +1,9 @@
-const Game = require('../models/game');
+const { getAllGames } = require("../utils/database");
 
 exports.getAllGames = (req, res, next) => {
-    Game.find((error, result) => {
-        if(error){
-            console.log(error)
-            const error = new Error("Could not retrieve games.");
-            error.statusCode = 500;
-            throw error;
-        }
-        
-        return res.status(200).json(result);
+    getAllGames().then(result => {
+        res.status(200).json(result);
+    }).catch(error => {
+        next(error);
     });
 }
