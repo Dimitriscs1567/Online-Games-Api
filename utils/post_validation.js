@@ -2,7 +2,7 @@ exports.checkBody = (body, keys) => {
     let ok = true;
 
     keys.forEach(key => {
-        if(!body.keys.includes(key)){
+        if(!Object.keys(body).includes(key)){
             ok = false;
         }
     });

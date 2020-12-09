@@ -8,4 +8,4 @@ const allowedUserSchema = new Schema({
     },
 });
 
-module.exports = mongoose.model('allowedUser', allowedUserSchema);
+module.exports = mongoose.model('allowed_user', allowedUserSchema);

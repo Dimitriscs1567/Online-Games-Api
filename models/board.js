@@ -23,6 +23,6 @@ const boardSchema = new Schema({
 });
 
 module.exports = {
-    model: mongoose.model('Board', boardSchema),
+    model: mongoose.model('board', boardSchema),
     schema: boardSchema,
 }   
