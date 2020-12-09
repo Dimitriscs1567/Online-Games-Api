@@ -80,3 +80,25 @@ exports.signup = async (req, res, next) => {
 exports.changePassword = (req, res, next) => {
     return res.status(200).json({});
 }
+
+exports.getAuthorization = (req, res, next) => {
+    try {
+        if(!req.get('Authorization')){
+            return next();
+        }
+
+        const token = req.get('Authorization').split(' ')[1];
+        const decode = jwt.verify(token, process.env.SIGN_KEY);
+
+        if(decode){
+            req.userEmail = decode.email;
+        }
+
+        return next();
+
+    } catch (error) {
+        const myError = new Error("Could not decode token.");
+        myError.statusCode = 500;
+        return next(myError);
+    }
+}

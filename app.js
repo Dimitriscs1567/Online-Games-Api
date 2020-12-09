@@ -9,6 +9,7 @@ const { handleErrors } = require('./controllers/error');
 const path = require('path');
 const { saveGames } = require('./data/data');
 const { connectDb, getNumberOfGames } = require('./utils/database');
+const { getAuthorization } = require('./controllers/auth');
 
 const app = express();
 
@@ -18,6 +19,7 @@ app.use(corsPolicy.setCorsHeaders);
 app.use('/assets', express.static(path.join(__dirname, 'assets')));
 
 //routes
+app.use(getAuthorization);
 app.use('/auth', authRoutes);
 app.use('/game', gameRoutes);
 app.use(handleErrors);
