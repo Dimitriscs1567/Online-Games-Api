@@ -1,3 +1,4 @@
+require('dotenv').config()
 const express = require('express');
 const gameRoutes = require('./routes/game');
 const authRoutes = require('./routes/auth');

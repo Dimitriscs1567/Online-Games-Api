@@ -7,6 +7,7 @@ const {
 } = require('../utils/database');
 const { checkBody } = require('../utils/post_validation');
 const bcrypt = require('bcrypt');
+const jwt = require('jsonwebtoken');
 
 exports.signin = async (req, res, next) => {
     const ok = checkBody(req.body, ['email', 'password']);
@@ -19,11 +20,16 @@ exports.signin = async (req, res, next) => {
     try {
         const result = await getUserByEmail(req.body.email);
         if(result && result.email && await bcrypt.compare(req.body.password, result.password)){
-            return res.status(200).json(result);
+            const token = jwt.sign({
+                email: result.email,
+                emailConfirmed: result.emailConfirmed,
+            }, process.env.SIGN_KEY, { expiresIn: '2d' });
+
+            return res.status(200).json({ token: token });
         }
 
         const myError = new Error("Invalid credentials.");
-        myError.statusCode = 400;
+        myError.statusCode = 401;
         return next(myError);
 
     } catch (error) {
