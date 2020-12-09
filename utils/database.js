@@ -5,27 +5,13 @@ const AllowedUser = require('../models/allowed_user');
 const User = require('../models/user');
 
 exports.getAllGames = () => {
-    return new Promise((resolve, reject)=>{
-        Game.find((error, result) => {
-            if(error){
-                console.log(error)
-                const error = new Error("Could not retrieve games.");
-                error.statusCode = 500;
-                reject(error);
-            }
-            
-            resolve(result);
-        });
-    });
+    return Game.find().exec();
 }
 
 exports.getNumberOfGames = () => {
     return new Promise((resolve, reject)=>{
         Game.find().countDocuments((error, result) => {
-            if(error){
-                console.log(error)
-                const error = new Error("Could not retrieve number of games.");
-                error.statusCode = 500;
+            if(error){                
                 reject(error);
             }
             
@@ -49,10 +35,7 @@ exports.saveGame = (game) => {
 exports.getAllUsersEmails = () => {
     return new Promise((resolve, reject)=>{
         User.find((error, result) => {
-            if(error){
-                console.log(error)
-                const error = new Error("Could not retrieve users emails.");
-                error.statusCode = 500;
+            if(error){                
                 reject(error);
             }
             
@@ -78,9 +61,6 @@ exports.getAllowedUsersEmails = () => {
     return new Promise((resolve, reject)=>{
         AllowedUser.find((error, result) => {
             if(error){
-                console.log(error)
-                const error = new Error("Could not retrieve allowed users emails.");
-                error.statusCode = 500;
                 reject(error);
             }
             

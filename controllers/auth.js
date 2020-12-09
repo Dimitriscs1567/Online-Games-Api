@@ -60,17 +60,14 @@ exports.signup = async (req, res, next) => {
             return res.status(201).json({});
         }
 
-        const error = new Error("Email already exists or is not allowed.");
-        error.statusCode = 400;
-        next(error);
+        const myError = new Error("Email already exists or is not allowed.");
+        myError.statusCode = 400;
+        next(myError);
 
     } catch (error) {
-        if(!error.statusCode){
-            const newError = new Error("Could not save user.");
-            newError.statusCode = 500;
-            return next(newError);
-        }
-        next(error);
+        const myError = new Error("Something went wrong during signup process.");
+        myError.statusCode = 500;
+        return next(newError);
     }
 }
 
