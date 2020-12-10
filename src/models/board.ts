@@ -1,7 +1,8 @@
-const mongoose = require('mongoose');
+import mongoose from 'mongoose';
+
 const Schema = mongoose.Schema;
 
-const boardSchema = new Schema({
+export const boardSchema = new Schema({
     creator: {
         type: String,
         required: true,
@@ -22,7 +23,4 @@ const boardSchema = new Schema({
     }
 });
 
-module.exports = {
-    model: mongoose.model('board', boardSchema),
-    schema: boardSchema,
-}   
+export const BoardModel = mongoose.model('board', boardSchema);

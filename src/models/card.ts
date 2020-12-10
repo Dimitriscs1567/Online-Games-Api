@@ -1,7 +1,8 @@
-const mongoose = require('mongoose');
+import mongoose from 'mongoose';
+
 const Schema = mongoose.Schema;
 
-const cardSchema = new Schema({
+export const cardSchema = new Schema({
     value: {
         type: String,
         required: true,
@@ -16,7 +17,4 @@ const cardSchema = new Schema({
     }
 });
 
-module.exports = {
-    model: mongoose.model('card', cardSchema),
-    schema: cardSchema,
-}   
+export const CardModel = mongoose.model('card', cardSchema);

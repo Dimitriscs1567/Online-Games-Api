@@ -1,9 +1,10 @@
-const mongoose = require('mongoose');
-const Schema = mongoose.Schema;
-const Board = require('./board');
-const Card = require('./card');
+import mongoose from 'mongoose';
+import { boardSchema } from './board';
+import { cardSchema } from './card';
 
-const gameSchema = new Schema(
+const Schema = mongoose.Schema;
+
+export const gameSchema = new Schema(
     {
         title: {
             type: String,
@@ -14,12 +15,12 @@ const gameSchema = new Schema(
             type: String,
             required: true,
         },
-        cards: [Card.schema],
-        boards: [Board.schema]
+        cards: [cardSchema],
+        boards: [boardSchema]
     },
     {
         timestamps: true,
     }
 );
 
-module.exports = mongoose.model('Game', gameSchema);
+export const GameModel =  mongoose.model('Game', gameSchema);

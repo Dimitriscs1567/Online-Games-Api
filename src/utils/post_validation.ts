@@ -1,4 +1,4 @@
-exports.checkBody = (body, keys) => {
+export const checkBody = (body: object, keys: string[]) => {
     let ok = true;
 
     keys.forEach(key => {
