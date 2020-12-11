@@ -10,11 +10,13 @@ import { saveGames } from './data/data';
 import { connectDb, getNumberOfGames } from './utils/database';
 import { getAuthorization } from './controllers/auth';
 import { socketInit } from './config/socket';
+import helmet from 'helmet';
 
 dotenv.config();
 const app = express();
 
 //express customization
+app.use(helmet());
 app.use(bodyParser.json());
 app.use(setCorsHeaders);
 app.use('/assets', express.static(path.join(__dirname, 'assets')));
@@ -32,7 +34,7 @@ connectDb().then((result) => {
         await saveGames();
     }
 
-    const server = app.listen(8080);
+    const server = app.listen(process.env.PORT || 8080);
     socketInit(server);
 }).catch(error => {
     console.log(error);
