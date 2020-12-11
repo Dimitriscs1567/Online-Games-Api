@@ -33,21 +33,13 @@ export const saveGame = (game: IGame) => {
    }).save();
 }
 
-export const getAllUsersEmails = () => {
-    return new Promise<string[]>((resolve, reject)=>{
-        User.find((error, result) => {
-            if(error){                
-                reject(error);
-            }
-            
-            const emails = result.map((user: IUser) => user.email);
-            resolve(emails);
-        });
-    });
+export const getAllUsers = () => {
+    return User.find().exec();
 }
 
 export const saveUser = (user: IUser) => {
     return new User({
+        username: user.username,
         email: user.email,
         password: user.password,
         emailConfirmed: user.emailConfirmed,

@@ -1,16 +1,11 @@
 import { NextFunction, Request, Response } from "express";
-import { 
-    getAllUsersEmails, 
-    getAllowedUsersEmails, 
-    saveUser, 
-    getUserByEmail 
-} from '../utils/database';
-import { checkBody } from '../utils/post_validation';
+import { saveUser, getUserByEmail } from '../utils/database';
+import { checkBody, checkNewUser } from '../utils/validations';
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
 import { IUserModel } from "../models/user";
 import { MyError } from "../declarations/my_error";
-import { IAuthorization } from "../declarations/model_declarations";
+import { IAuthorization, IUser } from "../declarations/model_declarations";
 
 export const signin = async (req: Request, res: Response, next: NextFunction) => {
     const ok = checkBody(req.body, ['email', 'password']);
@@ -24,7 +19,7 @@ export const signin = async (req: Request, res: Response, next: NextFunction) =>
         if(result && result.email && await bcrypt.compare(req.body.password, result.password)){
             const token = jwt.sign({
                 email: result.email,
-                emailConfirmed: result.emailConfirmed,
+                username: result.username
             }, process.env.SIGN_KEY as string, { expiresIn: '2d' });
 
             return res.status(200).json({ token: token });
@@ -44,20 +39,24 @@ export const signout = (req: Request, res: Response, next: NextFunction) => {
 }
 
 export const signup = async (req: Request, res: Response, next: NextFunction) => {
-    const ok = checkBody(req.body, ['email', 'password']);
+    const ok = checkBody(req.body, ['email', 'password', 'username']);
     if(!ok){
         const error = new MyError("Invalid body.", 400);
         return next(error);
     }
 
     try {
-        const existingEmails = await getAllUsersEmails();
-        const allowedEmails = await getAllowedUsersEmails();
+        const newUser: IUser = {
+            ...req.body,
+            emailConfirmed: false,
+        }
         
-        if(!existingEmails.includes(req.body.email) && allowedEmails.includes(req.body.email)){
+        const isAllowed = await checkNewUser(newUser);
+        if(isAllowed){
             const encruptedPassword = await bcrypt.hash(req.body.password, 12);
 
             const result = await saveUser({
+                username: req.body.username,
                 email: req.body.email,
                 password: encruptedPassword,
                 emailConfirmed: false,
@@ -65,7 +64,7 @@ export const signup = async (req: Request, res: Response, next: NextFunction) =>
             return res.status(201).json({});
         }
 
-        const myError = new MyError("Email already exists or is not allowed.", 400);
+        const myError = new MyError("Email/Username already exists or is not allowed.", 400);
         next(myError);
 
     } catch (error) {
@@ -85,7 +84,7 @@ export const getAuthorization = (req: Request, res: Response, next: NextFunction
             const decode = jwt.verify(token, process.env.SIGN_KEY as string) as IAuthorization | null;
 
             if(decode){
-                req.email = decode.email;
+                req.user = decode;
             }
         }
 

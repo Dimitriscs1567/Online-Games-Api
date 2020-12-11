@@ -2,7 +2,7 @@ import { GeneralState } from "./board_states";
 
 export interface IAuthorization{
     email: string,
-    emailConfirmed: boolean,
+    username: string
 }
 
 export interface IAllowedUser{
@@ -31,6 +31,7 @@ export interface IGame{
 }
 
 export interface IUser{
+    username: string,
     email: string,
     password: string,
     emailConfirmed: boolean,

@@ -9,6 +9,7 @@ import path from 'path';
 import { saveGames } from './data/data';
 import { connectDb, getNumberOfGames } from './utils/database';
 import { getAuthorization } from './controllers/auth';
+import { socketInit } from './config/socket';
 
 dotenv.config();
 const app = express();
@@ -31,7 +32,8 @@ connectDb().then((result) => {
         await saveGames();
     }
 
-    app.listen(8080);
+    const server = app.listen(8080);
+    socketInit(server);
 }).catch(error => {
     console.log(error);
 });
