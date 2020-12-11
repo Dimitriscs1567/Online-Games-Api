@@ -1,8 +1,13 @@
-import mongoose from 'mongoose';
+import mongoose, { Model, Document } from 'mongoose';
+import { ICard } from '../declarations/model_declarations';
 
 const Schema = mongoose.Schema;
 
-export const cardSchema = new Schema({
+export interface ICardModel extends ICard, Document{
+
+}
+
+export const CardSchema = new Schema({
     value: {
         type: String,
         required: true,
@@ -17,4 +22,4 @@ export const cardSchema = new Schema({
     }
 });
 
-export const CardModel = mongoose.model('card', cardSchema);
+export const Card: Model<ICardModel> = mongoose.model<ICardModel>('card', CardSchema);

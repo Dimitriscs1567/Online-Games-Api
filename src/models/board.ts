@@ -1,8 +1,12 @@
-import mongoose from 'mongoose';
+import mongoose, { Model, Document } from 'mongoose';
+import { IBoard } from '../declarations/model_declarations';
 
 const Schema = mongoose.Schema;
 
-export const boardSchema = new Schema({
+export interface IBoardModel extends IBoard, Document {
+}
+
+export const BoardSchema = new Schema({
     creator: {
         type: String,
         required: true,
@@ -20,7 +24,11 @@ export const boardSchema = new Schema({
     maxCapacity: {
         type: Number,
         required: true,
-    }
+    },
+    states: [{
+        type: Object,
+        required: false,
+    }]
 });
 
-export const BoardModel = mongoose.model('board', boardSchema);
+export const Board: Model<IBoardModel> = mongoose.model<IBoardModel>('board', BoardSchema);

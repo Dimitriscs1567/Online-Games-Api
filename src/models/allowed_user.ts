@@ -1,12 +1,16 @@
-import mongoose from 'mongoose';
+import mongoose, { Model, Document } from 'mongoose';
+import { IAllowedUser } from '../declarations/model_declarations';
 
 const Schema = mongoose.Schema;
 
-export const allowedUserSchema = new Schema({
+export interface IAllowedUserModel extends IAllowedUser, Document {
+}
+
+export const AllowedUserSchema = new Schema({
     email: {
         type: String,
         required: true,
     },
 });
 
-export const AllowedUserModel = mongoose.model('allowed_user', allowedUserSchema);
+export const AllowedUser: Model<IAllowedUserModel> = mongoose.model<IAllowedUserModel>('allowed_user', AllowedUserSchema);

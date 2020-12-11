@@ -1,10 +1,15 @@
-import mongoose from 'mongoose';
-import { boardSchema } from './board';
-import { cardSchema } from './card';
+import mongoose, { Model, Document } from 'mongoose';
+import { IGame } from '../declarations/model_declarations';
+import { BoardSchema } from './board';
+import { CardSchema } from './card';
 
 const Schema = mongoose.Schema;
 
-export const gameSchema = new Schema(
+export interface IGameModel extends IGame, Document{
+
+}
+
+export const GameSchema = new Schema(
     {
         title: {
             type: String,
@@ -15,12 +20,12 @@ export const gameSchema = new Schema(
             type: String,
             required: true,
         },
-        cards: [cardSchema],
-        boards: [boardSchema]
+        cards: [CardSchema],
+        boards: [BoardSchema]
     },
     {
         timestamps: true,
     }
 );
 
-export const GameModel =  mongoose.model('Game', gameSchema);
+export const Game: Model<IGameModel> =  mongoose.model<IGameModel>('Game', GameSchema);

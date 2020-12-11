@@ -1,5 +1,6 @@
 declare namespace Express {
     export interface Request {
-        userEmail?: string
+        email?: string,
+        emailConfirmed?: boolean,
     }
- }
+}

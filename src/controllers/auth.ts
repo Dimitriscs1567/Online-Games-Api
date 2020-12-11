@@ -8,6 +8,9 @@ import {
 import { checkBody } from '../utils/post_validation';
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
+import { IUserModel } from "../models/user";
+import { MyError } from "../declarations/my_error";
+import { IAuthorization } from "../declarations/model_declarations";
 
 export const signin = async (req: Request, res: Response, next: NextFunction) => {
     const ok = checkBody(req.body, ['email', 'password']);
@@ -17,7 +20,7 @@ export const signin = async (req: Request, res: Response, next: NextFunction) =>
     }
 
     try {
-        const result = await getUserByEmail(req.body.email) as any;
+        const result = await getUserByEmail(req.body.email) as IUserModel;
         if(result && result.email && await bcrypt.compare(req.body.password, result.password)){
             const token = jwt.sign({
                 email: result.email,
@@ -77,12 +80,12 @@ export const changePassword = (req: Request, res: Response, next: NextFunction) 
 
 export const getAuthorization = (req: Request, res: Response, next: NextFunction) => {
     try {
-        if(req.get('Authorization')){
+        if(req.get('Authorization') && req.get('Authorization')!.split(' ').length > 0){
             const token = req.get('Authorization')!.split(' ')[1];
-            const decode = jwt.verify(token, process.env.SIGN_KEY as string) as any;
+            const decode = jwt.verify(token, process.env.SIGN_KEY as string) as IAuthorization | null;
 
             if(decode){
-                req.userEmail = decode.email;
+                req.email = decode.email;
             }
         }
 
