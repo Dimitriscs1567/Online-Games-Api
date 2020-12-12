@@ -3,7 +3,7 @@ import { saveGame }from "../utils/database";
 const games = [
     {
         title: 'Tichu',
-        image: 'assets/games/tichu/cover',
+        image: 'assets/games/tichu/cover.png',
         cards: [],
     }
 ]

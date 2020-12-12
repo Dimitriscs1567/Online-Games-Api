@@ -92,6 +92,6 @@ export const getAuthorization = (req: Request, res: Response, next: NextFunction
 
     } catch (error) {
         const myError = new MyError("Could not decode token.", 500);
-        return next(myError);
+        return next();
     }
 }
