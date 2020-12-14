@@ -2,7 +2,8 @@ import { GeneralState } from "./board_states";
 
 export interface IAuthorization{
     email: string,
-    username: string
+    username: string,
+    isRefresh: boolean,
 }
 
 export interface IAllowedUser{

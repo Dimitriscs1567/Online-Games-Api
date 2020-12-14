@@ -1,11 +1,11 @@
 import { NextFunction, Request, Response } from "express";
-import { saveUser, getUserByEmail } from '../utils/database';
+import { saveUser, getUserByIdentifier } from '../utils/database';
 import { checkBody, checkNewUser } from '../utils/validations';
 import bcrypt from 'bcrypt';
-import jwt from 'jsonwebtoken';
 import { IUserModel } from "../models/user";
 import { MyError } from "../declarations/my_error";
 import { IAuthorization, IUser } from "../declarations/model_declarations";
+import { generateNewToken, getTokenFromHeader, getTokenTranslation } from "../utils/token";
 
 export const signin = async (req: Request, res: Response, next: NextFunction) => {
     const ok = checkBody(req.body, ['email', 'password']);
@@ -15,14 +15,28 @@ export const signin = async (req: Request, res: Response, next: NextFunction) =>
     }
 
     try {
-        const result = await getUserByEmail(req.body.email) as IUserModel;
-        if(result && result.email && await bcrypt.compare(req.body.password, result.password)){
-            const token = jwt.sign({
+        const result = await getUserByIdentifier(req.body.email) as IUserModel;
+        if(result && await bcrypt.compare(req.body.password, result.password)){
+            const toSign: IAuthorization = {
                 email: result.email,
-                username: result.username
-            }, process.env.SIGN_KEY as string, { expiresIn: '2d' });
+                username: result.username,
+                isRefresh: false,
+            } 
+            const token = generateNewToken(toSign, '1d');
 
-            return res.status(200).json({ token: token });
+            const toSignRefresh: IAuthorization = {
+                email: result.email,
+                username: result.username,
+                isRefresh: true,
+            } 
+            const refreshToken = generateNewToken(toSignRefresh, '7d');
+
+            return res.status(200).json({ 
+                refreshToken: refreshToken,
+                token: token,
+                username: result.username,
+                emailConfirmed: result.emailConfirmed,
+            });
         }
 
         const myError = new MyError("Invalid credentials.", 401);
@@ -78,20 +92,63 @@ export const changePassword = (req: Request, res: Response, next: NextFunction) 
 }
 
 export const getAuthorization = (req: Request, res: Response, next: NextFunction) => {
-    try {
-        if(req.get('Authorization') && req.get('Authorization')!.split(' ').length > 0){
-            const token = req.get('Authorization')!.split(' ')[1];
-            const decode = jwt.verify(token, process.env.SIGN_KEY as string) as IAuthorization | null;
+    const token = getTokenFromHeader(req);
+    if(token){
+        const user = getTokenTranslation(token);
 
-            if(decode){
-                req.user = decode;
-            }
+        if(user && !user.isRefresh){
+            req.user = user;
         }
-
-        return next();
-
-    } catch (error) {
-        const myError = new MyError("Could not decode token.", 500);
-        return next();
     }
+
+    return next();
+}
+
+export const validateToken = (req: Request, res: Response, next: NextFunction) => {
+    const token = getTokenFromHeader(req);
+    if(!token){
+        const error = new MyError("Invalid or expired token.", 401);
+        return next(error);
+    }
+
+    const user = getTokenTranslation(token);
+    if(!user){
+        const error = new MyError("Invalid or expired token.", 401);
+        return next(error);
+    }
+
+    return res.status(200).json({});
+}
+
+export const getNewToken = (req: Request, res: Response, next: NextFunction) => {
+    const ok = checkBody(req.body, ['refreshToken']);
+    if(!ok){
+        const error = new MyError("Invalid body.", 400);
+        return next(error);
+    }
+
+    let user = getTokenTranslation(req.body.refreshToken);
+    if(!user || !user.isRefresh){
+        const error = new MyError("Invalid or expired token.", 401);
+        return next(error);
+    }
+
+    const toSign: IAuthorization = {
+        email: user.email,
+        username: user.username,
+        isRefresh: false,
+    } 
+    const token = generateNewToken(toSign, '1d');
+
+    const toSignRefresh: IAuthorization = {
+        email: user.email,
+        username: user.username,
+        isRefresh: true,
+    } 
+    const refreshToken = generateNewToken(toSignRefresh, '7d');
+
+    return res.status(200).json({
+        refreshToken: refreshToken,
+        token: token,
+    });
 }
