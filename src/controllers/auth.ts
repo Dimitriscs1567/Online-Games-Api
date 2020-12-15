@@ -104,7 +104,7 @@ export const getAuthorization = (req: Request, res: Response, next: NextFunction
     return next();
 }
 
-export const validateToken = (req: Request, res: Response, next: NextFunction) => {
+export const validateToken = async (req: Request, res: Response, next: NextFunction) => {
     const token = getTokenFromHeader(req);
     if(!token){
         const error = new MyError("Invalid or expired token.", 401);
@@ -117,7 +117,12 @@ export const validateToken = (req: Request, res: Response, next: NextFunction) =
         return next(error);
     }
 
-    return res.status(200).json({});
+    const fullUser = await getUserByIdentifier(user.email);
+
+    return res.status(200).json({ 
+        ...user, 
+        emailConfirmed: fullUser?.emailConfirmed, 
+    });
 }
 
 export const getNewToken = (req: Request, res: Response, next: NextFunction) => {
