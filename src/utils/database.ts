@@ -46,10 +46,10 @@ export const saveUser = (user: IUser) => {
     }).save();
 }
 
-export const getUserByIdentifier = (identifier: string) => {
-    let user = User.findOne({ email: identifier }).exec();
+export const getUserByIdentifier = async (identifier: string) => {
+    let user = await User.findOne({ email: identifier }).exec();
     if(!user){
-        user = User.findOne({ username: identifier }).exec();
+        user = await User.findOne({ username: identifier }).exec();
     }
 
     return user;
