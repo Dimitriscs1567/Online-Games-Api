@@ -7,7 +7,7 @@ import { setCorsHeaders } from './config/corsPolicy';
 import { handleErrors } from './controllers/error';
 import path from 'path';
 import { saveGames } from './data/data';
-import { connectDb, getAllGames, getNumberOfBoards, getNumberOfGames } from './utils/database';
+import { connectDb, getAllGames, getNumberOfBoards, getNumberOfGames, updateBoardPlayers } from './utils/database';
 import { getAuthorization } from './controllers/auth';
 import { socketInit } from './config/socket';
 import helmet from 'helmet';
@@ -48,6 +48,14 @@ connectDb().then((result) => {
         }).save();
     }
     ///////////////////////////////////////////////
+
+    const creator = (await Board.findOne().exec())?.creator;
+    setInterval(()=>{
+        const l = Math.floor(Math.random() * 4); 
+        const players = new Array<string>(l).fill("player");
+
+        updateBoardPlayers(creator ?? "", players);
+    }, 2000);
     
     const server = app.listen(process.env.PORT || 8080);
     socketInit(server);

@@ -4,6 +4,7 @@ import { AllowedUser } from '../models/allowed_user';
 import { User } from '../models/user';
 import { IAllowedUser, IGame, IUser } from '../declarations/model_declarations';
 import { Board } from '../models/board';
+import { getSocketServer } from '../config/socket';
 
 export const getAllGames = () => {
     return Game.find().exec();
@@ -29,6 +30,17 @@ export const getBoardsForGame = async (gameTitle: string) => {
             .select({ states: 0 })
             .populate('game', '-states')
             .exec() : null;
+}
+
+export const updateBoardPlayers = async (creator: string, players: Array<string>) => {
+    const board = await Board.findOne({ creator: creator }).exec();
+
+    if(board){
+        board.otherPlayers = [...players];
+        const newBoard = await board.save();
+
+        getSocketServer().emit("updatedBoard", newBoard.toJSON());
+    }
 }
 
 export const saveGame = (game: IGame) => {
