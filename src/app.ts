@@ -7,10 +7,11 @@ import { setCorsHeaders } from './config/corsPolicy';
 import { handleErrors } from './controllers/error';
 import path from 'path';
 import { saveGames } from './data/data';
-import { connectDb, getNumberOfGames } from './utils/database';
+import { connectDb, getAllGames, getNumberOfBoards, getNumberOfGames } from './utils/database';
 import { getAuthorization } from './controllers/auth';
 import { socketInit } from './config/socket';
 import helmet from 'helmet';
+import { Board } from './models/board';
 
 dotenv.config();
 const app = express();
@@ -30,10 +31,24 @@ app.use(handleErrors);
 connectDb().then((result) => {
     return getNumberOfGames();
 }).then(async (count) => {
+    //saving initial stuff/////////////////////////
     if(count === 0){
         await saveGames();
     }
 
+    const numOfBoards = await getNumberOfBoards();
+    if(numOfBoards === 0){
+        const id = (await getAllGames())[0]._id;
+        await new Board({
+            game: id,
+            creator: "dimis",
+            title: "My game",
+            maxCapacity: 4,
+            otherPlayers: [],
+        }).save();
+    }
+    ///////////////////////////////////////////////
+    
     const server = app.listen(process.env.PORT || 8080);
     socketInit(server);
 }).catch(error => {

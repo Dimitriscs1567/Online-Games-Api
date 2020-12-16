@@ -2,6 +2,7 @@ import { getAllGames, getBoardsForGame } from "../utils/database";
 import { NextFunction, Request, Response } from "express";
 import { IGameModel } from "../models/game";
 import { MyError } from "../declarations/my_error";
+import { IBoardModel } from "../models/board";
 
 export const getAllGamesController = (req: Request, res: Response, next: NextFunction) => {
     getAllGames().then((result: Array<IGameModel>) => {
@@ -18,14 +19,15 @@ export const getAllBoardsForGame = (req: Request, res: Response, next: NextFunct
         return next(myError);
     }
 
-    getBoardsForGame(req.params.game).then((result: IGameModel | null) => {
+    getBoardsForGame(req.params.game).then((result: IBoardModel[] | null) => {
         if(result){
             return res.status(200).json(result);
         }
-
+            
         const myError = new MyError("Game not found.", 400);
         return next(myError);
     }).catch((error: Error) => {
+        console.log(error);
         const myError = new MyError("Could not retrieve boards.", 500);
         return next(myError);
     });

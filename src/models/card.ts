@@ -8,6 +8,11 @@ export interface ICardModel extends ICard, Document{
 }
 
 export const CardSchema = new Schema({
+    game: {
+        type: Schema.Types.ObjectId, 
+        ref: 'Game',
+        required: true,
+    },
     value: {
         type: String,
         required: true,
@@ -22,4 +27,4 @@ export const CardSchema = new Schema({
     }
 });
 
-export const Card: Model<ICardModel> = mongoose.model<ICardModel>('card', CardSchema);
+export const Card: Model<ICardModel> = mongoose.model<ICardModel>('Card', CardSchema);

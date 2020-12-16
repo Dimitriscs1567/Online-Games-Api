@@ -13,4 +13,4 @@ export const AllowedUserSchema = new Schema({
     },
 });
 
-export const AllowedUser: Model<IAllowedUserModel> = mongoose.model<IAllowedUserModel>('allowed_user', AllowedUserSchema);
+export const AllowedUser: Model<IAllowedUserModel> = mongoose.model<IAllowedUserModel>('Allowed_User', AllowedUserSchema);

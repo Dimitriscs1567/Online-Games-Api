@@ -1,39 +1,41 @@
-import mongoose from 'mongoose';
+import mongoose, { ObjectId } from 'mongoose';
 import { Game } from '../models/game';
-import { Card } from '../models/card';
 import { AllowedUser } from '../models/allowed_user';
 import { User } from '../models/user';
-import { IAllowedUser, ICard, IGame, IUser } from '../declarations/model_declarations';
+import { IAllowedUser, IGame, IUser } from '../declarations/model_declarations';
+import { Board } from '../models/board';
 
 export const getAllGames = () => {
-    return Game.find().select({ title: 1, image: 1 }).exec();
+    return Game.find().exec();
+}
+
+export const getGameByTitle = (gameTitle: string) => {
+    return Game.findOne({ title: gameTitle}).exec();
 }
 
 export const getNumberOfGames = () => {
-    return new Promise((resolve, reject)=>{
-        Game.find().countDocuments((error: Error, result: number) => {
-            if(error){                
-                reject(error);
-            }
-            
-            resolve(result);
-        });
-    });
+    return Game.find().countDocuments().exec();
+}
+
+export const getNumberOfBoards = () => {
+    return Board.find().countDocuments().exec();
 }
 
 export const getBoardsForGame = async (gameTitle: string) => {
-    return Game.findOne({ title: gameTitle }).select({ boards: 1 }).exec();
+
+    const id = (await getGameByTitle(gameTitle))?._id;
+
+    return id ? Board.find({ game: id })
+            .select({ states: 0 })
+            .populate('game', '-states')
+            .exec() : null;
 }
 
 export const saveGame = (game: IGame) => {
    return new Game({
-       title: game.title,
-       image: game.image,
-       cards: game.cards.map((card: ICard) => new Card({
-            value: card.value,
-            valueImage: card.valueImage,
-            coverImage: card.coverImage,
-       }).schema),
+        title: game.title,
+        image: game.image,
+        capacity: game.capacity,
    }).save();
 }
 

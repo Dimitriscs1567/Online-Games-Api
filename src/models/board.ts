@@ -8,6 +8,11 @@ export interface IBoardModel extends IBoard, Document {
 
 export const BoardSchema = new Schema(
     {
+        game: {
+            type: Schema.Types.ObjectId, 
+            ref: 'Game',
+            required: true,
+        },
         creator: {
             type: String,
             required: true,
@@ -16,7 +21,6 @@ export const BoardSchema = new Schema(
         title: {
             type: String,
             required: true,
-            unique: true,
         },
         password: {
             type: String,
@@ -40,4 +44,4 @@ export const BoardSchema = new Schema(
     },
 );
 
-export const Board: Model<IBoardModel> = mongoose.model<IBoardModel>('board', BoardSchema);
+export const Board: Model<IBoardModel> = mongoose.model<IBoardModel>('Board', BoardSchema);

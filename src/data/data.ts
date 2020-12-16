@@ -9,7 +9,7 @@ const games = [
 ]
 
 export const saveGames = async () => {
-    games.forEach(async (game) => {
-        await saveGame(game);
-    });
+    for(let i=0; i<games.length; i++){
+        await saveGame(games[i]);
+    }
 }

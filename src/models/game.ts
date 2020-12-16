@@ -1,7 +1,5 @@
 import mongoose, { Model, Document } from 'mongoose';
 import { IGame } from '../declarations/model_declarations';
-import { BoardSchema } from './board';
-import { CardSchema } from './card';
 
 const Schema = mongoose.Schema;
 
@@ -20,8 +18,10 @@ export const GameSchema = new Schema(
             type: String,
             required: true,
         },
-        cards: [CardSchema],
-        boards: [BoardSchema]
+        capacity: {
+            type: Number,
+            required: false,
+        },
     },
     {
         timestamps: true,
