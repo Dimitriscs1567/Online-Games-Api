@@ -6,7 +6,7 @@ import { User } from '../models/user';
 import { IAllowedUser, ICard, IGame, IUser } from '../declarations/model_declarations';
 
 export const getAllGames = () => {
-    return Game.find().exec();
+    return Game.find().select({ title: 1, image: 1 }).exec();
 }
 
 export const getNumberOfGames = () => {
@@ -19,6 +19,10 @@ export const getNumberOfGames = () => {
             resolve(result);
         });
     });
+}
+
+export const getBoardsForGame = async (gameTitle: string) => {
+    return Game.findOne({ title: gameTitle }).select({ boards: 1 }).exec();
 }
 
 export const saveGame = (game: IGame) => {
