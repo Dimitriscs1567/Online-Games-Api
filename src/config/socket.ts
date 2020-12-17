@@ -9,23 +9,39 @@ export const socketInit = (server: HttpServer) => {
     serverIO = new WebSocket.Server({ server });
 
     serverIO.on('connection', (socket, mainMessage) => {
-        const auth = getAuthorization(mainMessage.headers.authorization);
-        if(!auth){
-            socket.send({ error: "Unauthorized connection. It will be terminated." });
-            socket.terminate();
+        const username = getAuthorization(mainMessage.url?.substring(1));
+        
+        if(!username){
+            socket.close();
         }
         else{
-            socket.on("message", (message) => {
+            const exists = getWebSocketForUser(username);
+            if(exists){
+                exists.close();
+            }
 
+            socket.on("message", (message) => {
+                console.log(username, message);
             });
             socket.on("close", (message) => {
-                const index = userSockets.findIndex(us => us.username === auth);
+                console.log(username, "close");
+                const index = userSockets.findIndex(us => us.username === username);
                 userSockets.splice(index, 1);
             });
-            userSockets.push({
-                socket: socket,
-                username: auth,
-            });
+
+            if(exists){
+                const index = userSockets.findIndex(us => us.username === username);
+                userSockets[index] = {
+                    socket: socket,
+                    username: username,
+                }
+            }
+            else{
+                userSockets.push({
+                    socket: socket,
+                    username: username,
+                });
+            }
         }
     });
 }
@@ -39,11 +55,12 @@ export const getWebSocketForUser = (username: string) => {
     if(res.length > 0){
         return res[0].socket;
     }
+
+    return null;
 }
 
-const getAuthorization = (auth: string | undefined) => {
-    if(auth && auth.split(' ').length > 1){
-        const token = auth.split(' ')[1];
+const getAuthorization = (token: string | undefined) => {
+    if(token){
         const user = getTokenTranslation(token);
 
         if(user && !user.isRefresh){
