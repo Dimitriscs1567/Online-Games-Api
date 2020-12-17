@@ -12,6 +12,7 @@ import { getAuthorization } from './controllers/auth';
 import { socketInit } from './config/socket';
 import helmet from 'helmet';
 import { Board } from './models/board';
+import * as http from 'http';
 
 dotenv.config();
 const app = express();
@@ -57,8 +58,9 @@ connectDb().then((result) => {
         updateBoardPlayers(creator ?? "", players);
     }, 2000);
     
-    const server = app.listen(process.env.PORT || 8080);
+    const server = http.createServer(app);
     socketInit(server);
+    server.listen(process.env.PORT || 8080);
 }).catch(error => {
     console.log(error);
 });

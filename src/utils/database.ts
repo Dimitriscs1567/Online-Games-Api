@@ -39,7 +39,9 @@ export const updateBoardPlayers = async (creator: string, players: Array<string>
         board.otherPlayers = [...players];
         const newBoard = await board.save();
 
-        getSocketServer().emit("updatedBoard", newBoard.toJSON());
+        getSocketServer().clients.forEach(client => {
+            client.send(JSON.stringify(newBoard.toJSON()));
+        });
     }
 }
 
