@@ -26,7 +26,7 @@ export const BoardSchema = new Schema(
             type: String,
             required: false,
         },
-        maxCapacity: {
+        capacity: {
             type: Number,
             required: true,
         },

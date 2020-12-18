@@ -67,12 +67,12 @@ export const signup = async (req: Request, res: Response, next: NextFunction) =>
         
         const isAllowed = await checkNewUser(newUser);
         if(isAllowed){
-            const encruptedPassword = await bcrypt.hash(req.body.password, 12);
+            const encryptedPassword = await bcrypt.hash(req.body.password, 12);
 
             const result = await saveUser({
                 username: req.body.username,
                 email: req.body.email,
-                password: encruptedPassword,
+                password: encryptedPassword,
                 emailConfirmed: false,
             });
 

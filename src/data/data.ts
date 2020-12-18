@@ -13,3 +13,5 @@ export const saveGames = async () => {
         await saveGame(games[i]);
     }
 }
+
+export const getDataNumOfGames = () => games.length; 

@@ -1,5 +1,12 @@
 import express from 'express';
-import { signin, signout, signup, changePassword, validateToken, getNewToken } from '../controllers/auth';
+import { 
+    signin, 
+    signout, 
+    signup, 
+    changePassword, 
+    validateToken, 
+    getNewToken 
+} from '../controllers/auth';
 
 const router = express.Router();
 

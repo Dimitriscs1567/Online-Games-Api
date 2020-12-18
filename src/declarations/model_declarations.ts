@@ -1,4 +1,4 @@
-import { Schema } from "mongoose";
+import mongoose from "mongoose";
 import { GeneralState } from "./board_states";
 
 export interface IAuthorization{
@@ -12,17 +12,17 @@ export interface IAllowedUser{
 }
 
 export interface IBoard{
-    game: Schema.Types.ObjectId,
+    game: mongoose.Types.ObjectId,
     creator: string,
     title: string,
-    password: string,
-    maxCapacity: string,
+    password?: string,
+    capacity: number,
     otherPlayers: Array<String>,
     states?: Array<GeneralState>
 }
 
 export interface ICard{
-    game: Schema.Types.ObjectId,
+    game: mongoose.Types.ObjectId,
     value: string,
     valueImage: string,
     coverImage: string,

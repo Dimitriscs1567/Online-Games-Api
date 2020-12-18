@@ -6,13 +6,14 @@ import authRoutes from './routes/auth';
 import { setCorsHeaders } from './config/corsPolicy';
 import { handleErrors } from './controllers/error';
 import path from 'path';
-import { saveGames } from './data/data';
-import { connectDb, getAllGames, getNumberOfBoards, getNumberOfGames, updateBoardPlayers } from './utils/database';
+import { getDataNumOfGames, saveGames } from './data/data';
+import { connectDb, getNumberOfBoards, getNumberOfGames, saveBoard } from './utils/database';
 import { getAuthorization } from './controllers/auth';
 import { socketInit } from './config/socket';
 import helmet from 'helmet';
-import { Board } from './models/board';
 import * as http from 'http';
+import { IBoard } from './declarations/model_declarations';
+import mongoose from 'mongoose';
 
 dotenv.config();
 const app = express();
@@ -33,30 +34,21 @@ connectDb().then((result) => {
     return getNumberOfGames();
 }).then(async (count) => {
     //saving initial stuff/////////////////////////
-    if(count === 0){
+    if(count < getDataNumOfGames()){
         await saveGames();
-    }
-
-    const numOfBoards = await getNumberOfBoards();
-    if(numOfBoards === 0){
-        const id = (await getAllGames())[0]._id;
-        await new Board({
-            game: id,
-            creator: "dimis",
-            title: "My game",
-            maxCapacity: 4,
-            otherPlayers: [],
-        }).save();
     }
     ///////////////////////////////////////////////
 
-    const creator = (await Board.findOne().exec())?.creator;
-    setInterval(()=>{
-        const l = Math.floor(Math.random() * 4); 
-        const players = new Array<string>(l).fill("player");
-
-        updateBoardPlayers(creator ?? "", players);
-    }, 2000);
+    if((await getNumberOfBoards()) === 0){
+        const board: IBoard = {
+            title: "My title",
+            creator: "dimis",
+            otherPlayers: [],
+            game: new mongoose.Types.ObjectId("5fdcfc581950f5322c11c646"),
+            capacity: 4,
+        }
+        await saveBoard(board);
+    }
     
     const server = http.createServer(app);
     socketInit(server);

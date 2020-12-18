@@ -1,9 +1,16 @@
 import express from 'express';
-import { getAllGamesController, getAllBoardsForGame } from '../controllers/game';
+import { 
+    getAllGamesController, 
+    creatNewBoard, 
+    getBoard,
+    deleteBoard,
+} from '../controllers/game';
 
 const router = express.Router();
 
 router.get('/allGames', getAllGamesController);
-router.get('/:game/boards', getAllBoardsForGame);
+router.post('/:game/boards', creatNewBoard);
+router.post('/:game/boards/:creator', getBoard);
+router.delete('/:game/boards/:creator', deleteBoard);
 
 export default router;
