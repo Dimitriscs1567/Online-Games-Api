@@ -75,7 +75,27 @@ export const signup = async (req: Request, res: Response, next: NextFunction) =>
                 password: encruptedPassword,
                 emailConfirmed: false,
             });
-            return res.status(201).json({});
+
+            const toSign: IAuthorization = {
+                email: result.email,
+                username: result.username,
+                isRefresh: false,
+            } 
+            const token = generateNewToken(toSign, '1d');
+
+            const toSignRefresh: IAuthorization = {
+                email: result.email,
+                username: result.username,
+                isRefresh: true,
+            } 
+            const refreshToken = generateNewToken(toSignRefresh, '7d');
+
+            return res.status(200).json({ 
+                refreshToken: refreshToken,
+                token: token,
+                username: result.username,
+                emailConfirmed: result.emailConfirmed,
+            });
         }
 
         const myError = new MyError("Email/Username already exists or is not allowed.", 400);

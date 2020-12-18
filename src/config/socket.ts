@@ -9,7 +9,7 @@ export const socketInit = (server: HttpServer) => {
     serverIO = new WebSocket.Server({ server });
 
     serverIO.on('connection', (socket, mainMessage) => {
-        const username = getAuthorization(mainMessage.url?.substring(1));
+        const username = getAuthorization(mainMessage.url);
         
         if(!username){
             socket.close();
@@ -19,7 +19,8 @@ export const socketInit = (server: HttpServer) => {
             if(exists){
                 exists.close();
             }
-
+            console.log(username, "open")
+            
             socket.on("message", (message) => {
                 console.log(username, message);
             });
@@ -59,8 +60,9 @@ export const getWebSocketForUser = (username: string) => {
     return null;
 }
 
-const getAuthorization = (token: string | undefined) => {
-    if(token){
+const getAuthorization = (url: string | undefined) => {
+    if(url && url.split('token=').length > 1){
+        const token = url.split('token=')[1];
         const user = getTokenTranslation(token);
 
         if(user && !user.isRefresh){
