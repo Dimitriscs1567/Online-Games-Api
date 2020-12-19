@@ -57,6 +57,7 @@ export const creatNewBoard = async (req: Request, res: Response, next: NextFunct
         password: encryptedPassword,
         otherPlayers: [],
         capacity: capacity,
+        started: false,
     }
 
     db.saveBoard(newBoard).then((result) => {

@@ -30,6 +30,10 @@ export const BoardSchema = new Schema(
             type: Number,
             required: true,
         },
+        started: {
+            type: Boolean,
+            required: true,
+        },
         otherPlayers: [{
             type: String,
             required: true,

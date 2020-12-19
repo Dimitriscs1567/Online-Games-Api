@@ -46,6 +46,7 @@ connectDb().then((result) => {
             otherPlayers: [],
             game: new mongoose.Types.ObjectId("5fdcfc581950f5322c11c646"),
             capacity: 4,
+            started: false,
         }
         await saveBoard(board);
     }

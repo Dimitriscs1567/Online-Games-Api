@@ -1,8 +1,8 @@
 import { Server as HttpServer } from "http";
 import WebSocket from 'ws';
-import { Message, MessageType } from "../declarations/message";
+import { Message } from "../declarations/message";
 import { getTokenTranslation } from "../utils/token";
-import * as db from "../utils/database";
+import { sendAllActiveBoardsMessage } from "../utils/messages";
 
 let serverIO: WebSocket.Server;
 let userSockets: Array<{ socket: WebSocket, username: string }> = [];
@@ -65,7 +65,7 @@ export const getWebSocketForUser = (username: string) => {
     return null;
 }
 
-export const sendMessage = (message: Message, users?: Array<string>) => {
+export const sendMessage = (message: Message, users?: Array<string> | WebSocket) => {
     const messageToSend = JSON.stringify(message.toJson());
 
     if(!users){
@@ -74,13 +74,18 @@ export const sendMessage = (message: Message, users?: Array<string>) => {
         });
     } 
     else{
-        users
+        if(users instanceof WebSocket){
+            users.send(messageToSend);
+        }
+        else{
+            users
             .map(user => getWebSocketForUser(user))
             .forEach(socket => {
                 if(socket){
                     socket.send(messageToSend);
                 }
             });
+        }
     }
 }
 
@@ -100,14 +105,6 @@ const getAuthorization = (url: string | undefined) => {
 const handleClientMessage = async (message: WebSocket.Data, socket: WebSocket) => {
     if(message.toString().includes('boards')){
         const gameTitle = message.toString().split(":")[1];
-        const boards = await db.getBoardsForGame(gameTitle);
-        const messageToSend = JSON.stringify(new Message(MessageType.Boards, { 
-            boards: boards ?? [],
-            game: gameTitle,
-        }).toJson());
-
-        if(boards){
-            socket.send(messageToSend);
-        }
+        sendAllActiveBoardsMessage(gameTitle, socket);
     }
 }

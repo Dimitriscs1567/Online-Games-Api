@@ -17,6 +17,7 @@ export interface IBoard{
     title: string,
     password?: string,
     capacity: number,
+    started: boolean,
     otherPlayers: Array<String>,
     states?: Array<GeneralState>
 }

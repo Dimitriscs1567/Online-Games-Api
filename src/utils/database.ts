@@ -4,11 +4,14 @@ import { AllowedUser } from '../models/allowed_user';
 import { User } from '../models/user';
 import { IAllowedUser, IBoard, IGame, IUser } from '../declarations/model_declarations';
 import { Board } from '../models/board';
-import { sendMessage } from '../config/socket'
-import { Message, MessageType } from '../declarations/message';
+import { broadcastAllActiveBoardsMessage } from './messages';
 
 export const getAllGames = () => {
     return Game.find().exec();
+}
+
+export const getGameById = (gameId: mongoose.Types.ObjectId) => {
+    return Game.findOne({ _id: gameId}).exec();
 }
 
 export const getGameByTitle = (gameTitle: string) => {
@@ -39,7 +42,7 @@ export const getNumberOfBoards = () => {
     return Board.find().countDocuments().exec();
 }
 
-export const getBoardsForGame = async (gameTitle: string) => {
+export const getActiveBoardsForGame = async (gameTitle: string) => {
     const id = (await getGameByTitle(gameTitle))?._id;
 
     return id ? Board.find({ game: id })
@@ -52,33 +55,24 @@ export const getUserBoard = async (creator: string) => {
     return Board.findOne({ creator: creator }).exec();
 }
 
-export const updateBoardPlayers = async (creator: string, players: Array<string>) => {
+export const addBoardPlayers = async (creator: string, player: string) => {
     const board = await Board.findOne({ creator: creator }).exec();
 
-    if(board){
-        board.otherPlayers = [...players];
-        const newBoard = await board.save();
+    if(board && board.otherPlayers.length + 1 <= board.capacity){
+        board.otherPlayers = [...board.otherPlayers, player];
+        await board.save();
 
-        const game = await Game.findOne({ _id: newBoard.game }).exec();
-        if(game){
-            sendMessage(new Message(MessageType.Boards, { 
-                boards: await getBoardsForGame(game.title) ?? [],
-                game: game.title,
-            }));
-        }
+        broadcastAllActiveBoardsMessage(board.game);
+        return true;
     }
+
+    return false;
 }
 
 export const saveBoard = async (board: IBoard) => {
     const newBoard = await new Board(board).save();
 
-    const game = await Game.findOne({ _id: newBoard.game }).exec();
-    if(game){
-        sendMessage(new Message(MessageType.Boards, { 
-            boards: await getBoardsForGame(game.title) ?? [],
-            game: game.title,
-        }));
-    }
+    broadcastAllActiveBoardsMessage(board.game);
 
     return newBoard;
 }
@@ -86,13 +80,7 @@ export const saveBoard = async (board: IBoard) => {
 export const deleteBoard = async (board: IBoard) => {
     await new Board(board).delete();
 
-    const game = await Game.findOne({ _id: board.game }).exec();
-    if(game){
-        sendMessage(new Message(MessageType.Boards, { 
-            boards: await getBoardsForGame(game.title) ?? [],
-            game: game.title,
-        }));
-    }
+    broadcastAllActiveBoardsMessage(board.game);
     
     return;
 }
