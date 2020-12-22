@@ -7,13 +7,11 @@ import { setCorsHeaders } from './config/corsPolicy';
 import { handleErrors } from './controllers/error';
 import path from 'path';
 import { getDataNumOfGames, saveGames } from './data/data';
-import { connectDb, getNumberOfBoards, getNumberOfGames, saveBoard } from './utils/database';
+import { connectDb, getNumberOfGames } from './utils/database';
 import { getAuthorization } from './controllers/auth';
 import { socketInit } from './config/socket';
 import helmet from 'helmet';
 import * as http from 'http';
-import { IBoard } from './declarations/model_declarations';
-import mongoose from 'mongoose';
 
 dotenv.config();
 const app = express();
@@ -39,18 +37,6 @@ connectDb().then((result) => {
     }
     ///////////////////////////////////////////////
 
-    if((await getNumberOfBoards()) === 0){
-        const board: IBoard = {
-            title: "My title",
-            creator: "dimis",
-            otherPlayers: [],
-            game: new mongoose.Types.ObjectId("5fe21dc3ee28ad03a80264e5"),
-            capacity: 4,
-            started: false,
-        }
-        await saveBoard(board);
-    }
-    
     const server = http.createServer(app);
     socketInit(server);
     server.listen(process.env.PORT || 8080);
