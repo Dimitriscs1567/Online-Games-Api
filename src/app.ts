@@ -44,7 +44,7 @@ connectDb().then((result) => {
             title: "My title",
             creator: "dimis",
             otherPlayers: [],
-            game: new mongoose.Types.ObjectId("5fdcfc581950f5322c11c646"),
+            game: new mongoose.Types.ObjectId("5fe21dc3ee28ad03a80264e5"),
             capacity: 4,
             started: false,
         }

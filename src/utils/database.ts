@@ -45,7 +45,7 @@ export const getNumberOfBoards = () => {
 export const getActiveBoardsForGame = async (gameTitle: string) => {
     const id = (await getGameByTitle(gameTitle))?._id;
 
-    return id ? Board.find({ game: id })
+    return id ? Board.find({ game: id, started: false })
             .select({ states: 0 })
             .populate('game')
             .exec() : null;

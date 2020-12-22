@@ -4,6 +4,7 @@ const games = [
     {
         title: 'Tichu',
         image: 'assets/games/tichu/cover.png',
+        capacity: 4,
         cards: [],
     }
 ]

@@ -16,13 +16,28 @@ export const getAllGamesController = (req: Request, res: Response, next: NextFun
     });
 }
 
-export const creatNewBoard = async (req: Request, res: Response, next: NextFunction) => {
+export const getGameController = (req: Request, res: Response, next: NextFunction) => {
+    const ok = checkBody(req.body, ['title']);
+    if(!ok){
+        const myError = new MyError("Invalid body.", 400);
+        return next(myError);
+    }
+
+    db.getGameByTitle(req.body.title).then((result: IGameModel | null) => {
+        return res.status(200).json(result);
+    }).catch((error: Error) => {
+        const myError = new MyError("Could not retrieve game.", 500);
+        return next(myError);
+    });
+}
+
+export const createNewBoard = async (req: Request, res: Response, next: NextFunction) => {
     if(!req.user){
         const myError = new MyError("Unauthorized request.", 401);
         return next(myError);
     }
 
-    const ok = checkBody(req.body, ['creator', 'title']);
+    const ok = checkBody(req.body, ['creator', 'title', 'gameTitle']);
     if(!ok){
         const myError = new MyError("Invalid body.", 400);
         return next(myError);
@@ -38,7 +53,7 @@ export const creatNewBoard = async (req: Request, res: Response, next: NextFunct
         encryptedPassword = await bcrypt.hash(req.body.password, 6);
     }
 
-    const parentGame = await db.getGameByTitle(req.params.game);
+    const parentGame = await db.getGameByTitle(req.body.gameTitle);
     if(!parentGame){
         const myError = new MyError("Game for board not found.", 400);
         return next(myError);
@@ -60,8 +75,9 @@ export const creatNewBoard = async (req: Request, res: Response, next: NextFunct
         started: false,
     }
 
-    db.saveBoard(newBoard).then((result) => {
-        return res.status(201).json(result);   
+    db.saveBoard(newBoard).then(async (result) => {
+        const parsedResult = await result.populate('game').execPopulate();
+        return res.status(201).json(parsedResult);   
         
     }).catch((error: Error) => {
         console.log(error);
@@ -76,7 +92,13 @@ export const getBoard = async (req: Request, res: Response, next: NextFunction) 
         return next(myError);
     }
 
-    const board = await db.getUserBoard(req.params.creator);
+    const ok = checkBody(req.body, ['creator']);
+    if(!ok){
+        const myError = new MyError("Invalid body.", 400);
+        return next(myError);
+    }
+
+    const board = await db.getUserBoard(req.body.creator);
     if(!board){
         const myError = new MyError("Could not found board.", 400);
         return next(myError);
