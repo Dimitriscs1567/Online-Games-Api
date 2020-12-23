@@ -55,7 +55,7 @@ export const createNewBoard = async (req: Request, res: Response, next: NextFunc
 
     const parentGame = await db.getGameByTitle(req.body.gameTitle);
     if(!parentGame){
-        const myError = new MyError("Game for board not found.", 400);
+        const myError = new MyError("Game for board not find.", 400);
         return next(myError);
     }
 
@@ -100,7 +100,7 @@ export const getBoard = async (req: Request, res: Response, next: NextFunction) 
 
     const board = await db.getUserBoard(req.body.creator);
     if(!board){
-        const myError = new MyError("Could not found board.", 400);
+        const myError = new MyError("Could not find board.", 400);
         return next(myError);
     }
 
@@ -128,9 +128,30 @@ export const deleteBoard = async (req: Request, res: Response, next: NextFunctio
 
     const board = await db.getUserBoard(req.params.creator);
     if(!board){
-        const myError = new MyError("Could not found board.", 400);
+        const myError = new MyError("Could not find board.", 400);
         return next(myError);
     }
 
     db.deleteBoard(board);
+}
+
+export const getCards = async (req: Request, res: Response, next: NextFunction) => {
+    if(!req.user){
+        const myError = new MyError("Unauthorized request.", 401);
+        return next(myError);
+    }
+
+    const ok = checkBody(req.body, ['gameTitle']);
+    if(!ok){
+        const myError = new MyError("Invalid body.", 400);
+        return next(myError);
+    }
+
+    const cards = await db.getCardsForGame(req.body.gameTitle);
+    if(!cards){
+        const myError = new MyError("Could not find cards.", 400);
+        return next(myError);
+    }
+
+    return res.status(200).json(cards);  
 }

@@ -2,9 +2,10 @@ import mongoose from 'mongoose';
 import { Game } from '../models/game';
 import { AllowedUser } from '../models/allowed_user';
 import { User } from '../models/user';
-import { IAllowedUser, IBoard, IGame, IUser } from '../declarations/model_declarations';
+import { IAllowedUser, IBoard, ICard, IGame, IUser } from '../declarations/model_declarations';
 import { Board } from '../models/board';
 import { broadcastAllActiveBoardsMessage } from './messages';
+import { Card } from '../models/card';
 
 export const getAllGames = () => {
     return Game.find().exec();
@@ -31,12 +32,8 @@ export const getNumberOfGames = () => {
 }
 
 export const saveGame = (game: IGame) => {
-    return new Game({
-         title: game.title,
-         image: game.image,
-         capacity: game.capacity,
-    }).save();
- }
+    return new Game(game).save();
+}
 
 export const getNumberOfBoards = () => {
     return Board.find().countDocuments().exec();
@@ -46,7 +43,6 @@ export const getActiveBoardsForGame = async (gameTitle: string) => {
     const id = (await getGameByTitle(gameTitle))?._id;
 
     return id ? Board.find({ game: id, started: false })
-            .select({ states: 0 })
             .populate('game')
             .exec() : null;
 }
@@ -83,6 +79,16 @@ export const deleteBoard = async (board: IBoard) => {
     broadcastAllActiveBoardsMessage(board.game);
     
     return;
+}
+
+export const saveCard = (card: ICard) => {
+    return new Card(card).save();
+}
+
+export const getCardsForGame = async (gameTitle: string) => {
+    const id = (await getGameByTitle(gameTitle))?._id;
+
+    return id ? Card.find({ game: id }).exec() : null;
 }
 
 export const getAllUsers = () => {

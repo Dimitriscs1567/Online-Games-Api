@@ -17,14 +17,10 @@ export const CardSchema = new Schema({
         type: String,
         required: true,
     },
-    valueImage: {
+    image: {
         type: String,
         required: true,
     },
-    coverImage: {
-        type: String,
-        required: true,
-    }
 });
 
 export const Card: Model<ICardModel> = mongoose.model<ICardModel>('Card', CardSchema);

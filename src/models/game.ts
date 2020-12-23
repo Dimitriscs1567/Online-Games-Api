@@ -22,6 +22,10 @@ export const GameSchema = new Schema(
             type: Number,
             required: false,
         },
+        cardCover: {
+            type: String,
+            required: true,
+        },
     },
     {
         timestamps: true,
