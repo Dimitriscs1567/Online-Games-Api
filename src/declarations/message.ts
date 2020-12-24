@@ -14,6 +14,7 @@ const messageTypeToString = (type: MessageType): string => {
 
 export interface BoardsBody{
     boards: IBoardModel[],
+    gameTitle: string,
 }
 
 export interface BoardStateBody{

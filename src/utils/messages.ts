@@ -9,6 +9,7 @@ export const broadcastAllActiveBoardsMessage = async (gameId: mongoose.Types.Obj
     if(game){
         sendMessage(new Message(MessageType.Boards, { 
             boards: await getActiveBoardsForGame(game.title) ?? [],
+            gameTitle: game.title,
         }));
     }
 }
@@ -18,6 +19,7 @@ export const sendAllActiveBoardsMessage = async (gameTitle: string, socket: WebS
     if(game){
         sendMessage(new Message(MessageType.Boards, { 
             boards: await getActiveBoardsForGame(game.title) ?? [],
+            gameTitle: game.title,
         }), socket);
     }
 }
