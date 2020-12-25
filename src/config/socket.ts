@@ -2,7 +2,7 @@ import { Server as HttpServer } from "http";
 import WebSocket from 'ws';
 import { Message } from "../declarations/message";
 import { getTokenTranslation } from "../utils/token";
-import { sendAllActiveBoardsMessage } from "../utils/messages";
+import { sendAllActiveBoardsMessage, sendBoardMessage } from "../utils/messages";
 
 let serverIO: WebSocket.Server;
 let userSockets: Array<{ socket: WebSocket, username: string }> = [];
@@ -24,7 +24,7 @@ export const socketInit = (server: HttpServer) => {
             console.log(username, "open")
 
             socket.on("message", (message) => {
-                handleClientMessage(message, socket);
+                handleClientMessage(message, username, socket);
                 console.log(username, message);
             });
 
@@ -102,9 +102,22 @@ const getAuthorization = (url: string | undefined) => {
     return null;
 }
 
-const handleClientMessage = async (message: WebSocket.Data, socket: WebSocket) => {
+const handleClientMessage = async (message: WebSocket.Data, username: string,  socket: WebSocket) => {
+    if(message.toString().split(":").length < 2){
+        return;
+    }
+
     if(message.toString().includes('boards')){
         const gameTitle = message.toString().split(":")[1];
         sendAllActiveBoardsMessage(gameTitle, socket);
+    }
+    else if(message.toString().includes('getBoard')){
+        const creator = message.toString().split(":")[1];
+        let password;
+        if(message.toString().split(":")[2]){
+            password = message.toString().split(":")[2];
+        }
+
+        sendBoardMessage(creator, socket, username, password);
     }
 }
