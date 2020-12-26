@@ -86,40 +86,6 @@ export const createNewBoard = async (req: Request, res: Response, next: NextFunc
     });
 }
 
-export const getBoard = async (req: Request, res: Response, next: NextFunction) => {
-    if(!req.user){
-        const myError = new MyError("Unauthorized request.", 401);
-        return next(myError);
-    }
-
-    const ok = checkBody(req.body, ['creator']);
-    if(!ok){
-        const myError = new MyError("Invalid body.", 400);
-        return next(myError);
-    }
-
-    const board = await db.getUserBoard(req.body.creator);
-    if(!board){
-        const myError = new MyError("Could not find board.", 400);
-        return next(myError);
-    }
-
-    if(req.user.username !== board.creator && board.password){
-        if(req.body.password){
-            const ok = await bcrypt.compare(req.body.password, board.password);
-
-            if(ok){
-                return res.status(200).json(board);
-            }
-        }
-
-        const myError = new MyError("Unauthorized request.", 401);
-        return next(myError);
-    }
-
-    return res.status(200).json(board);  
-}
-
 export const deleteBoard = async (req: Request, res: Response, next: NextFunction) => {
     if(!req.user || req.user.username !== req.params.creator){
         const myError = new MyError("Unauthorized request.", 401);

@@ -32,7 +32,7 @@ export const sendBoardMessage = async (creator: string, socket: WebSocket, usern
         if(board.password && username !== creator){
             if(!password || !(await bcrypt.compare(password, board.password))){
                 return sendMessage(new Message(MessageType.Error, { 
-                    error: "You do not have access to that board.",
+                    error: "Wrong password.",
                 }), socket);
             }
         }
