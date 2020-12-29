@@ -73,6 +73,10 @@ export const createNewBoard = async (req: Request, res: Response, next: NextFunc
         otherPlayers: [],
         capacity: capacity,
         started: false,
+        states: [{
+            round: 0,
+            players: [req.body.creator, ...(new Array(capacity - 1))],
+        }],
     }
 
     db.saveBoard(newBoard).then(async (result) => {
