@@ -51,18 +51,25 @@ export const getUserBoard = async (creator: string) => {
     return Board.findOne({ creator: creator }).exec();
 }
 
-export const addBoardPlayers = async (creator: string, player: string) => {
+export const addBoardPlayer = async (creator: string, player: string, position: number) => {
     const board = await Board.findOne({ creator: creator }).exec();
 
-    if(board && board.otherPlayers.length + 1 <= board.capacity){
+    if(board && board.otherPlayers.length + 1 <= board.capacity && !board.states[0].players[position]){
         board.otherPlayers = [...board.otherPlayers, player];
-        await board.save();
+        const newPlayers = [...board.states[0].players];
+        newPlayers[position] = player;
+        board.states = [{
+            ...board.states[0],
+            players: [...newPlayers],
+        }];
+
+        const newBoard = await board.save();
 
         broadcastAllActiveBoardsMessage(board.game);
-        return true;
+        return newBoard;
     }
 
-    return false;
+    return null;
 }
 
 export const saveBoard = async (board: IBoard) => {

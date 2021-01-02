@@ -18,8 +18,8 @@ export interface IBoard{
     password?: string,
     capacity: number,
     started: boolean,
-    otherPlayers: Array<String>,
-    states?: Array<GeneralState>
+    otherPlayers: Array<string>,
+    states: Array<GeneralState>
 }
 
 export interface ICard{

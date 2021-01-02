@@ -1,4 +1,4 @@
-import { getActiveBoardsForGame, getGameById, getGameByTitle, getUserBoard } from "./database";
+import { addBoardPlayer, getActiveBoardsForGame, getGameById, getGameByTitle, getUserBoard } from "./database";
 import mongoose from "mongoose";
 import { sendMessage } from "../config/socket";
 import { Message, MessageType } from "../declarations/message";
@@ -46,6 +46,47 @@ export const sendBoardMessage = async (creator: string, socket: WebSocket, usern
         return sendMessage(new Message(MessageType.BoardState, { 
             board: board,
         }), socket);
+    }
+
+    return sendMessage(new Message(MessageType.Error, { 
+        error: "Board does not exist.",
+    }), socket);
+}
+
+export const joinBoardMessage = async (creator: string, position: number, socket: WebSocket, username: string, password?: string) => {
+    const board = await getUserBoard(creator);
+    
+    if(board){
+        if(board.password && username !== creator){
+            if(!password || !(await bcrypt.compare(password, board.password))){
+                return sendMessage(new Message(MessageType.Error, { 
+                    error: "Wrong password.",
+                }), socket);
+            }
+        }
+
+        if(board.started){
+            return sendMessage(new Message(MessageType.Error, { 
+                error: "You can not join a game that is started.",
+            }), socket);
+        }
+
+        if(position < 0){
+            return sendMessage(new Message(MessageType.Error, { 
+                error: "Invalid position.",
+            }), socket);
+        }
+
+        const newBoard = await addBoardPlayer(creator, username, position);
+        if(!newBoard){
+            return sendMessage(new Message(MessageType.Error, { 
+                error: "Invalid position.",
+            }), socket);
+        }
+
+        return sendMessage(new Message(MessageType.BoardState, { 
+            board: newBoard,
+        }));
     }
 
     return sendMessage(new Message(MessageType.Error, { 
