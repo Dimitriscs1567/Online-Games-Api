@@ -65,7 +65,31 @@ export const addBoardPlayer = async (creator: string, player: string, position: 
 
         const newBoard = await board.save();
 
-        broadcastAllActiveBoardsMessage(board.game);
+        broadcastAllActiveBoardsMessage(newBoard.game);
+        return newBoard;
+    }
+
+    return null;
+}
+
+export const removeBoardPlayer = async (creator: string, player: string) => {
+    const board = await Board.findOne({ creator: creator }).exec();
+
+    if(board && board.otherPlayers.includes(player)){
+        const newPlayers = [...board.otherPlayers];
+        newPlayers.splice(newPlayers.indexOf(player));
+        board.otherPlayers = [...newPlayers];
+
+        const newStatePlayers = [...board.states[0].players];
+        newStatePlayers[newStatePlayers.indexOf(player)] = null;
+        board.states = [{
+            ...board.states[0],
+            players: [...newStatePlayers],
+        }];
+
+        const newBoard = await board.save();
+
+        broadcastAllActiveBoardsMessage(newBoard.game);
         return newBoard;
     }
 

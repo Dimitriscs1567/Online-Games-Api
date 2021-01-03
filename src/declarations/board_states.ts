@@ -1,4 +1,4 @@
 export interface GeneralState{
     round: Number,
-    players: Array<string>,
+    players: Array<string | null>,
 }

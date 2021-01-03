@@ -1,4 +1,4 @@
-import { addBoardPlayer, getActiveBoardsForGame, getGameById, getGameByTitle, getUserBoard } from "./database";
+import { addBoardPlayer, getActiveBoardsForGame, getGameById, getGameByTitle, getUserBoard, removeBoardPlayer } from "./database";
 import mongoose from "mongoose";
 import { sendMessage } from "../config/socket";
 import { Message, MessageType } from "../declarations/message";
@@ -83,6 +83,84 @@ export const joinBoardMessage = async (creator: string, position: number, socket
                 error: "Invalid position.",
             }), socket);
         }
+
+        return sendMessage(new Message(MessageType.BoardState, { 
+            board: newBoard,
+        }));
+    }
+
+    return sendMessage(new Message(MessageType.Error, { 
+        error: "Board does not exist.",
+    }), socket);
+}
+
+export const removePlayerFromBoardMessage = async (creator: string, socket: WebSocket, username: string, password?: string) => {
+    const board = await getUserBoard(creator);
+    
+    if(board){
+        if(board.password && username !== creator){
+            if(!password || !(await bcrypt.compare(password, board.password))){
+                return sendMessage(new Message(MessageType.Error, { 
+                    error: "Wrong password.",
+                }), socket);
+            }
+        }
+
+        if(creator === username){
+            return sendMessage(new Message(MessageType.Error, { 
+                error: "The creator cannot leave the game.",
+            }), socket);
+        }
+
+        if(!board.otherPlayers.includes(username)){
+            return sendMessage(new Message(MessageType.Error, { 
+                error: "The player has not joined yet.",
+            }), socket);
+        }
+
+        const newBoard = await removeBoardPlayer(creator, username);
+        if(!newBoard){
+            return sendMessage(new Message(MessageType.Error, { 
+                error: "Invalid player.",
+            }), socket);
+        }
+
+        return sendMessage(new Message(MessageType.BoardState, { 
+            board: newBoard,
+        }));
+    }
+
+    return sendMessage(new Message(MessageType.Error, { 
+        error: "Board does not exist.",
+    }), socket);
+}
+
+export const kickPlayerFromBoardMessage = async (player: string, socket: WebSocket, username: string) => {
+    const board = await getUserBoard(username);
+    
+    if(board){
+        if(player === username){
+            return sendMessage(new Message(MessageType.Error, { 
+                error: "The creator cannot be kicked.",
+            }), socket);
+        }
+
+        if(!board.otherPlayers.includes(player)){
+            return sendMessage(new Message(MessageType.Error, { 
+                error: "The player has not joined yet.",
+            }), socket);
+        }
+
+        const newBoard = await removeBoardPlayer(username, player);
+        if(!newBoard){
+            return sendMessage(new Message(MessageType.Error, { 
+                error: "Invalid player.",
+            }), socket);
+        }
+
+        sendMessage(new Message(MessageType.Inform, { 
+            message: "You have been kicked from the game.",
+        }), [player]);
 
         return sendMessage(new Message(MessageType.BoardState, { 
             board: newBoard,

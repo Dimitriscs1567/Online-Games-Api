@@ -1,5 +1,5 @@
 import WebSocket from 'ws';
-import { joinBoardMessage, sendAllActiveBoardsMessage, sendBoardMessage } from "../utils/messages";
+import { joinBoardMessage, kickPlayerFromBoardMessage, removePlayerFromBoardMessage, sendAllActiveBoardsMessage, sendBoardMessage } from "../utils/messages";
 
 export const handleClientMessage = async (message: WebSocket.Data, username: string,  socket: WebSocket) => {
     if(message.toString().split(":").length < 2){
@@ -33,6 +33,22 @@ export const handleClientMessage = async (message: WebSocket.Data, username: str
             }
 
             joinBoardMessage(creator2, position2, socket, username, password2);
+            break;
+
+        case 'leaveBoard': 
+            const creator3 = message.toString().split(":")[1];
+            let password3;
+            if(message.toString().split(":")[2]){
+                password3 = message.toString().split(":")[2];
+            }
+
+            removePlayerFromBoardMessage(creator3, socket, username, password3);
+            break;
+
+        case 'kickPlayer': 
+            const player4 = message.toString().split(":")[1];
+            
+            kickPlayerFromBoardMessage(player4, socket, username);
             break;
 
         default: break; 
