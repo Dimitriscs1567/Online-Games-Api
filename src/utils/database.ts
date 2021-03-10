@@ -47,21 +47,25 @@ export const getActiveBoardsForGame = async (gameTitle: string) => {
             .exec() : null;
 }
 
-export const getUserBoard = async (creator: string) => {
+export const getCreatorBoard = async (creator: string) => {
     return Board.findOne({ creator: creator }).exec();
+}
+
+export const getUserBoard = async (username: string) => {
+    return Board.findOne({ otherPlayers: username }).exec();
 }
 
 export const addBoardPlayer = async (creator: string, player: string, position: number) => {
     const board = await Board.findOne({ creator: creator }).exec();
 
-    if(board && board.otherPlayers.length + 1 <= board.capacity && !board.states[0].players[position]){
+    if(board && board.otherPlayers.length + 1 <= board.capacity && !board.state.players[position]){
         board.otherPlayers = [...board.otherPlayers, player];
-        const newPlayers = [...board.states[0].players];
+        const newPlayers = [...board.state.players];
         newPlayers[position] = player;
-        board.states = [{
-            ...board.states[0],
+        board.state = {
+            ...board.state,
             players: [...newPlayers],
-        }];
+        };
 
         const newBoard = await board.save();
 
@@ -80,12 +84,12 @@ export const removeBoardPlayer = async (creator: string, player: string) => {
         newPlayers.splice(newPlayers.indexOf(player));
         board.otherPlayers = [...newPlayers];
 
-        const newStatePlayers = [...board.states[0].players];
+        const newStatePlayers = [...board.state.players];
         newStatePlayers[newStatePlayers.indexOf(player)] = null;
-        board.states = [{
-            ...board.states[0],
+        board.state = {
+            ...board.state,
             players: [...newStatePlayers],
-        }];
+        };
 
         const newBoard = await board.save();
 

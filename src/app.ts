@@ -1,6 +1,5 @@
 import dotenv from 'dotenv';
 import express from 'express';
-import bodyParser from 'body-parser'
 import gameRoutes from './routes/game';
 import authRoutes from './routes/auth';
 import { setCorsHeaders } from './config/corsPolicy';
@@ -18,7 +17,7 @@ const app = express();
 
 //express customization
 app.use(helmet());
-app.use(bodyParser.json());
+app.use(express.json());
 app.use(setCorsHeaders);
 app.use('/assets', express.static(path.join(__dirname, 'assets')));
 

@@ -1,4 +1,12 @@
-import { addBoardPlayer, getActiveBoardsForGame, getGameById, getGameByTitle, getUserBoard, removeBoardPlayer } from "./database";
+import { 
+    addBoardPlayer, 
+    getActiveBoardsForGame, 
+    getGameById, 
+    getGameByTitle, 
+    getCreatorBoard, 
+    removeBoardPlayer ,
+    getUserBoard,
+} from "./database";
 import mongoose from "mongoose";
 import { sendMessage } from "../config/socket";
 import { Message, MessageType } from "../declarations/message";
@@ -26,7 +34,7 @@ export const sendAllActiveBoardsMessage = async (gameTitle: string, socket: WebS
 }
 
 export const sendBoardMessage = async (creator: string, socket: WebSocket, username: string, password?: string) => {
-    const board = await getUserBoard(creator);
+    const board = await getCreatorBoard(creator);
     
     if(board){
         if(board.password && username !== creator){
@@ -54,7 +62,7 @@ export const sendBoardMessage = async (creator: string, socket: WebSocket, usern
 }
 
 export const joinBoardMessage = async (creator: string, position: number, socket: WebSocket, username: string, password?: string) => {
-    const board = await getUserBoard(creator);
+    const board = await getCreatorBoard(creator);
     
     if(board){
         if(board.password && username !== creator){
@@ -77,6 +85,11 @@ export const joinBoardMessage = async (creator: string, position: number, socket
             }), socket);
         }
 
+        const participatedBoard = await getUserBoard(username);
+        if(participatedBoard){
+            await removeBoardPlayer(creator, username);
+        }
+
         const newBoard = await addBoardPlayer(creator, username, position);
         if(!newBoard){
             return sendMessage(new Message(MessageType.Error, { 
@@ -95,7 +108,7 @@ export const joinBoardMessage = async (creator: string, position: number, socket
 }
 
 export const removePlayerFromBoardMessage = async (creator: string, socket: WebSocket, username: string, password?: string) => {
-    const board = await getUserBoard(creator);
+    const board = await getCreatorBoard(creator);
     
     if(board){
         if(board.password && username !== creator){
@@ -136,7 +149,7 @@ export const removePlayerFromBoardMessage = async (creator: string, socket: WebS
 }
 
 export const kickPlayerFromBoardMessage = async (player: string, socket: WebSocket, username: string) => {
-    const board = await getUserBoard(username);
+    const board = await getCreatorBoard(username);
     
     if(board){
         if(player === username){

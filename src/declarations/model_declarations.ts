@@ -19,7 +19,7 @@ export interface IBoard{
     capacity: number,
     started: boolean,
     otherPlayers: Array<string>,
-    states: Array<GeneralState>
+    state: GeneralState
 }
 
 export interface ICard{

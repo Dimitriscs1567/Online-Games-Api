@@ -43,7 +43,7 @@ export const createNewBoard = async (req: Request, res: Response, next: NextFunc
         return next(myError);
     }
 
-    const exists = await db.getUserBoard(req.body.creator);
+    const exists = await db.getCreatorBoard(req.body.creator);
     if(exists){
         await db.deleteBoard(exists);
     }
@@ -96,7 +96,7 @@ export const deleteBoard = async (req: Request, res: Response, next: NextFunctio
         return next(myError);
     }
 
-    const board = await db.getUserBoard(req.params.creator);
+    const board = await db.getCreatorBoard(req.params.creator);
     if(!board){
         const myError = new MyError("Could not find board.", 400);
         return next(myError);
