@@ -16,6 +16,6 @@ export interface GeneralState{
     round: Number,
     players: Array<string | null>,
     points: Array<number | null>,
-    roundState: TichuState,
-    gameSpecifics: TichuSpecifics,
+    roundState: TichuState | null,
+    gameSpecifics: TichuSpecifics | null,
 }
