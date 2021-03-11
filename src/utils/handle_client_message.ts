@@ -1,5 +1,12 @@
 import WebSocket from 'ws';
-import { joinBoardMessage, kickPlayerFromBoardMessage, removePlayerFromBoardMessage, sendAllActiveBoardsMessage, sendBoardMessage } from "../utils/messages";
+import { 
+    joinBoardMessage, 
+    kickPlayerFromBoardMessage, 
+    removePlayerFromBoardMessage, 
+    sendAllActiveBoardsMessage, 
+    sendBoardMessage,
+    changePlayerReady,
+} from "../utils/messages";
 
 export const handleClientMessage = async (message: WebSocket.Data, username: string,  socket: WebSocket) => {
     if(message.toString().split(":").length < 2){
@@ -49,6 +56,16 @@ export const handleClientMessage = async (message: WebSocket.Data, username: str
             const player4 = message.toString().split(":")[1];
             
             kickPlayerFromBoardMessage(player4, socket, username);
+            break;
+
+        case 'playerReady':
+            const creator4 = message.toString().split(":")[1];
+            let password4;
+            if(message.toString().split(":")[2]){
+                password4 = message.toString().split(":")[2];
+            }
+
+            changePlayerReady(creator4, socket, username, password4);
             break;
 
         default: break; 

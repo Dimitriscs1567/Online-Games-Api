@@ -6,6 +6,7 @@ import {
     getCreatorBoard, 
     removeBoardPlayer ,
     getUserBoard,
+    changeBoardPlayerReady,
 } from "./database";
 import mongoose from "mongoose";
 import { sendMessage } from "../config/socket";
@@ -99,7 +100,7 @@ export const joinBoardMessage = async (creator: string, position: number, socket
 
         return sendMessage(new Message(MessageType.BoardState, { 
             board: newBoard,
-        }));
+        }), [newBoard.creator, ...newBoard.otherPlayers]);
     }
 
     return sendMessage(new Message(MessageType.Error, { 
@@ -140,7 +141,7 @@ export const removePlayerFromBoardMessage = async (creator: string, socket: WebS
 
         return sendMessage(new Message(MessageType.BoardState, { 
             board: newBoard,
-        }));
+        }), [newBoard.creator, ...newBoard.otherPlayers, username]);
     }
 
     return sendMessage(new Message(MessageType.Error, { 
@@ -148,23 +149,23 @@ export const removePlayerFromBoardMessage = async (creator: string, socket: WebS
     }), socket);
 }
 
-export const kickPlayerFromBoardMessage = async (player: string, socket: WebSocket, username: string) => {
+export const kickPlayerFromBoardMessage = async (playerToKick: string, socket: WebSocket, username: string) => {
     const board = await getCreatorBoard(username);
     
     if(board){
-        if(player === username){
+        if(playerToKick === username){
             return sendMessage(new Message(MessageType.Error, { 
                 error: "The creator cannot be kicked.",
             }), socket);
         }
 
-        if(!board.otherPlayers.includes(player)){
+        if(!board.otherPlayers.includes(playerToKick)){
             return sendMessage(new Message(MessageType.Error, { 
                 error: "The player has not joined yet.",
             }), socket);
         }
 
-        const newBoard = await removeBoardPlayer(username, player);
+        const newBoard = await removeBoardPlayer(username, playerToKick);
         if(!newBoard){
             return sendMessage(new Message(MessageType.Error, { 
                 error: "Invalid player.",
@@ -173,14 +174,44 @@ export const kickPlayerFromBoardMessage = async (player: string, socket: WebSock
 
         sendMessage(new Message(MessageType.Inform, { 
             message: "You have been kicked from the game.",
-        }), [player]);
+        }), [playerToKick]);
 
         return sendMessage(new Message(MessageType.BoardState, { 
             board: newBoard,
-        }));
+        }), [newBoard.creator, ...newBoard.otherPlayers, playerToKick]);
     }
 
     return sendMessage(new Message(MessageType.Error, { 
         error: "Board does not exist.",
     }), socket);
+}
+
+export const changePlayerReady = async (creator: string, socket: WebSocket, username: string, password?: string) => {
+    const board = await getCreatorBoard(creator);
+
+    if(board){
+        if(board.password && username !== creator){
+            if(!password || !(await bcrypt.compare(password, board.password))){
+                return sendMessage(new Message(MessageType.Error, { 
+                    error: "Wrong password.",
+                }), socket);
+            }
+        }
+
+        const newBoard = await changeBoardPlayerReady(creator, username);
+        if(!newBoard){
+            return sendMessage(new Message(MessageType.Error, { 
+                error: "Invalid player.",
+            }), socket);
+        }
+
+        return sendMessage(new Message(MessageType.BoardState, { 
+            board: newBoard,
+        }), [newBoard.creator, ...newBoard.otherPlayers]);
+    }
+    else{
+        return sendMessage(new Message(MessageType.Error, { 
+            error: "Board does not exist.",
+        }), socket);
+    }
 }

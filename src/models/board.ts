@@ -38,10 +38,10 @@ export const BoardSchema = new Schema(
             type: String,
             required: true,
         }],
-        states: [{
+        state: {
             type: Object,
-            required: false,
-        }]
+            required: true,
+        }
     },
     {
         timestamps: true,

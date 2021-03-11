@@ -100,10 +100,37 @@ export const removeBoardPlayer = async (creator: string, player: string) => {
     return null;
 }
 
+export const changeBoardPlayerReady = async (creator: string, player: string) => {
+    const board = await Board.findOne({ creator: creator }).exec();
+
+    if(board && board.state.players.includes(player)){
+        const position = board.state.players.indexOf(player);
+        const newReadyPlayers = [...board.state.readyPlayers];
+        newReadyPlayers[position] = !newReadyPlayers[position];
+        board.state = {
+            ...board.state,
+            readyPlayers: [...newReadyPlayers],
+        }
+
+        let shouldBroadcast = false;
+        if(!board.state.readyPlayers.includes(false)){
+            board.started = true;
+            shouldBroadcast = true;
+        }
+
+        const newBoard = await board.save();
+
+        if(shouldBroadcast) broadcastAllActiveBoardsMessage(newBoard.game);
+        return newBoard;
+    }
+
+    return null;
+}
+
 export const saveBoard = async (board: IBoard) => {
     const newBoard = await new Board(board).save();
 
-    broadcastAllActiveBoardsMessage(board.game);
+    broadcastAllActiveBoardsMessage(newBoard.game);
 
     return newBoard;
 }

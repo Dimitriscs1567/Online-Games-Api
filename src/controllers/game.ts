@@ -76,6 +76,8 @@ export const createNewBoard = async (req: Request, res: Response, next: NextFunc
         state: {
             round: 0,
             players: [req.body.creator, ...(new Array(capacity - 1))],
+            readyPlayers: new Array(capacity).fill(false),
+            playerTurn: null,
             points: new Array(capacity).fill(null),
             roundState: null,
             gameSpecifics: null,
