@@ -108,18 +108,10 @@ export const joinBoardMessage = async (creator: string, position: number, socket
     }), socket);
 }
 
-export const removePlayerFromBoardMessage = async (creator: string, socket: WebSocket, username: string, password?: string) => {
+export const removePlayerFromBoardMessage = async (creator: string, socket: WebSocket, username: string) => {
     const board = await getCreatorBoard(creator);
     
     if(board){
-        if(board.password && username !== creator){
-            if(!password || !(await bcrypt.compare(password, board.password))){
-                return sendMessage(new Message(MessageType.Error, { 
-                    error: "Wrong password.",
-                }), socket);
-            }
-        }
-
         if(creator === username){
             return sendMessage(new Message(MessageType.Error, { 
                 error: "The creator cannot leave the game.",
@@ -186,18 +178,10 @@ export const kickPlayerFromBoardMessage = async (playerToKick: string, socket: W
     }), socket);
 }
 
-export const changePlayerReady = async (creator: string, socket: WebSocket, username: string, password?: string) => {
+export const changePlayerReady = async (creator: string, socket: WebSocket, username: string) => {
     const board = await getCreatorBoard(creator);
 
     if(board){
-        if(board.password && username !== creator){
-            if(!password || !(await bcrypt.compare(password, board.password))){
-                return sendMessage(new Message(MessageType.Error, { 
-                    error: "Wrong password.",
-                }), socket);
-            }
-        }
-
         const newBoard = await changeBoardPlayerReady(creator, username);
         if(!newBoard){
             return sendMessage(new Message(MessageType.Error, { 

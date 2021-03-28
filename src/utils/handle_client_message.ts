@@ -44,12 +44,8 @@ export const handleClientMessage = async (message: WebSocket.Data, username: str
 
         case 'leaveBoard': 
             const creator3 = message.toString().split(":")[1];
-            let password3;
-            if(message.toString().split(":")[2]){
-                password3 = message.toString().split(":")[2];
-            }
 
-            removePlayerFromBoardMessage(creator3, socket, username, password3);
+            removePlayerFromBoardMessage(creator3, socket, username);
             break;
 
         case 'kickPlayer': 
@@ -60,12 +56,8 @@ export const handleClientMessage = async (message: WebSocket.Data, username: str
 
         case 'playerReady':
             const creator4 = message.toString().split(":")[1];
-            let password4;
-            if(message.toString().split(":")[2]){
-                password4 = message.toString().split(":")[2];
-            }
 
-            changePlayerReady(creator4, socket, username, password4);
+            changePlayerReady(creator4, socket, username);
             break;
 
         default: break; 
