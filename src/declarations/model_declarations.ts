@@ -23,7 +23,6 @@ export interface IBoard{
 }
 
 export interface ICard{
-    game: mongoose.Types.ObjectId,
     value: string,
     image: string,
 }
@@ -32,6 +31,7 @@ export interface IGame{
     title: string,
     image: string,
     cardCover: string,
+    cards: Array<ICard>,
     capacity?: number,
 }
 

@@ -109,24 +109,3 @@ export const deleteBoard = async (req: Request, res: Response, next: NextFunctio
 
     db.deleteBoard(board);
 }
-
-export const getCards = async (req: Request, res: Response, next: NextFunction) => {
-    if(!req.user){
-        const myError = new MyError("Unauthorized request.", 401);
-        return next(myError);
-    }
-
-    const ok = checkBody(req.body, ['gameTitle']);
-    if(!ok){
-        const myError = new MyError("Invalid body.", 400);
-        return next(myError);
-    }
-
-    const cards = await db.getCardsForGame(req.body.gameTitle);
-    if(!cards){
-        const myError = new MyError("Could not find cards.", 400);
-        return next(myError);
-    }
-
-    return res.status(200).json(cards);  
-}

@@ -26,6 +26,10 @@ export const GameSchema = new Schema(
             type: String,
             required: true,
         },
+        cards: {
+            type: Array,
+            required: true,
+        },
     },
     {
         timestamps: true,

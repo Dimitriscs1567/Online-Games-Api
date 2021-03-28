@@ -1,13 +1,13 @@
 import { ICard } from "./model_declarations";
 
-enum TichuState{
+export enum TichuState{
     EightCards,
     Exchanges,
     Turn,
     EndTurn,
 }
 
-interface TichuSpecifics {
+export interface TichuSpecifics {
     hands: Array<Array<ICard>>,
     inPlay: Array<Array<ICard>>,
 }

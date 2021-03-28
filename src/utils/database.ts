@@ -5,7 +5,7 @@ import { User } from '../models/user';
 import { IAllowedUser, IBoard, ICard, IGame, IUser } from '../declarations/model_declarations';
 import { Board } from '../models/board';
 import { broadcastAllActiveBoardsMessage } from './messages';
-import { Card } from '../models/card';
+import { startGameLogic } from '../game_logic/main_logic';
 
 export const getAllGames = () => {
     return Game.find().exec();
@@ -120,7 +120,10 @@ export const changeBoardPlayerReady = async (creator: string, player: string) =>
 
         const newBoard = await board.save();
 
-        if(shouldBroadcast) broadcastAllActiveBoardsMessage(newBoard.game);
+        if(shouldBroadcast) {
+            broadcastAllActiveBoardsMessage(newBoard.game);
+            startGameLogic(newBoard);
+        }
         return newBoard;
     }
 
@@ -141,16 +144,6 @@ export const deleteBoard = async (board: IBoard) => {
     broadcastAllActiveBoardsMessage(board.game);
     
     return;
-}
-
-export const saveCard = (card: ICard) => {
-    return new Card(card).save();
-}
-
-export const getCardsForGame = async (gameTitle: string) => {
-    const id = (await getGameByTitle(gameTitle))?._id;
-
-    return id ? Card.find({ game: id }).exec() : null;
 }
 
 export const getAllUsers = () => {
