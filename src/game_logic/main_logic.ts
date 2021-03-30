@@ -1,6 +1,6 @@
 import { TichuState } from "../declarations/board_states";
 import { IBoard, ICard, IGame } from "../declarations/model_declarations";
-import { getGameById } from "../utils/database";
+import { getGameById, saveBoardState } from "../utils/database";
 
 export const startGameLogic = async (board: IBoard) => {
     const game = (await getGameById(board.game))!;
@@ -16,14 +16,14 @@ const startTichuLogic = (board: IBoard, game: IGame) => {
     shuffleCards(allCards);
 
     let hands: Array<Array<ICard>> = new Array(board.capacity).fill([]);
-    while(allCards.length > 0){
+    while(hands[0].length < 8){
         for(let i=0; i<board.capacity; i++){
             hands[i].push(allCards[0]);
             allCards = allCards.slice(1);
         }
     }
 
-    board = {
+    const newBoard = {
         ...board,
         state: {
             players: [...board.state.players],
@@ -38,6 +38,8 @@ const startTichuLogic = (board: IBoard, game: IGame) => {
             },
         }
     }
+
+    saveBoardState(newBoard);
 }
 
 const shuffleCards = (array: Array<ICard>) => {
@@ -45,4 +47,4 @@ const shuffleCards = (array: Array<ICard>) => {
       let j = Math.floor(Math.random() * (i + 1));
       [array[i], array[j]] = [array[j], array[i]];
     }
-  }
+}

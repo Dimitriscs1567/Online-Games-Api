@@ -13,6 +13,7 @@ import { sendMessage } from "../config/socket";
 import { Message, MessageType } from "../declarations/message";
 import WebSocket from 'ws';
 import bcrypt from "bcrypt";
+import { IBoardModel } from "../models/board";
 
 export const broadcastAllActiveBoardsMessage = async (gameId: mongoose.Types.ObjectId) => {
     const game = await getGameById(gameId);
@@ -198,4 +199,10 @@ export const changePlayerReady = async (creator: string, socket: WebSocket, user
             error: "Board does not exist.",
         }), socket);
     }
+}
+
+export const changeBoardState = async (board: IBoardModel) => {
+    return sendMessage(new Message(MessageType.BoardState, { 
+        board: board,
+    }), [board.creator, ...board.otherPlayers]);
 }

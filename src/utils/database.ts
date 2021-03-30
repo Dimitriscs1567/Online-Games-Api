@@ -4,7 +4,7 @@ import { AllowedUser } from '../models/allowed_user';
 import { User } from '../models/user';
 import { IAllowedUser, IBoard, ICard, IGame, IUser } from '../declarations/model_declarations';
 import { Board } from '../models/board';
-import { broadcastAllActiveBoardsMessage } from './messages';
+import { broadcastAllActiveBoardsMessage, changeBoardState } from './messages';
 import { startGameLogic } from '../game_logic/main_logic';
 
 export const getAllGames = () => {
@@ -136,6 +136,12 @@ export const saveBoard = async (board: IBoard) => {
     broadcastAllActiveBoardsMessage(newBoard.game);
 
     return newBoard;
+}
+
+export const saveBoardState = async (board: IBoard) => {
+    const newBoard = await new Board(board).save();
+
+    changeBoardState(newBoard);
 }
 
 export const deleteBoard = async (board: IBoard) => {
